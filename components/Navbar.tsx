@@ -31,4 +31,4 @@ export function Navbar({
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="flex items-center gap-2 shrink-0"
           >
-            <div className="w-9 h-9 rounded
+            <div className="w-9 h-9 rounded-xl bg-rose-600 text-white flex items-center justify-center font-black text-xs">
