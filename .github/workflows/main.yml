@@ -38,7 +38,7 @@ jobs:
         run: rm -f capacitor.config.ts
 
       - name: Add Android platform
-        run: npx cap add android --no-interactive
+        run: npx cap add android
 
       - name: Sync Capacitor
         run: npx cap sync android
