@@ -21,7 +21,9 @@ export function HeroBanner({
 
         <h1 className="mt-4 text-3xl sm:text-5xl font-black tracking-tight">
           Style You Love.
-          <span className="block text-rose-400">Prices You’ll Love.</span>
+          <span className="block text-rose-400">
+            Prices You’ll Love.
+          </span>
         </h1>
 
         <p className="mt-3 text-sm sm:text-base text-neutral-300 max-w-xl">
@@ -53,4 +55,21 @@ export function HeroBanner({
 
           <button
             onClick={() => onSelectMarketplace("Myntra")}
-            className="
+            className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-bold"
+          >
+            Myntra
+          </button>
+        </div>
+      </div>
+
+      <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-rose-600/30 blur-3xl" />
+
+      <div className="absolute -right-20 -bottom-24 w-64 h-64 rounded-full bg-purple-600/20 blur-3xl" />
+
+      <div className="absolute right-5 bottom-5 hidden sm:flex items-center gap-2 text-xs text-neutral-400">
+        <ExternalLink className="w-3.5 h-3.5" />
+        Trusted marketplace links
+      </div>
+    </section>
+  );
+}
