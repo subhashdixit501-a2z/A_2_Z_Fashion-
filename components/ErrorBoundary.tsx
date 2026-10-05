@@ -6,6 +6,7 @@ interface ErrorBoundaryProps {
 
 interface ErrorBoundaryState {
   hasError: boolean;
+  errorMessage: string;
 }
 
 export class ErrorBoundary extends React.Component<
@@ -14,11 +15,13 @@ export class ErrorBoundary extends React.Component<
 > {
   state: ErrorBoundaryState = {
     hasError: false,
+    errorMessage: "",
   };
 
-  static getDerivedStateFromError(): ErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): ErrorBoundaryState {
     return {
       hasError: true,
+      errorMessage: error?.message || "Unknown error",
     };
   }
 
@@ -34,18 +37,17 @@ export class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="min-h-screen bg-neutral-50 flex items-center justify-center p-5">
-          <div className="w-full max-w-md bg-white rounded-3xl border border-neutral-200 p-6 text-center shadow-sm">
+          <div className="w-full max-w-md bg-white rounded-3xl border border-neutral-200 p-6 shadow-sm">
             <div className="w-14 h-14 mx-auto rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl font-black">
               A2Z
             </div>
 
-            <h1 className="mt-4 text-xl font-black text-neutral-900">
+            <h1 className="mt-4 text-xl font-black text-neutral-900 text-center">
               Something went wrong
             </h1>
 
-            <p className="mt-2 text-sm text-neutral-500 leading-6">
-              A_2_Z_Fashion encountered an unexpected error. Please reload
-              the app and try again.
+            <p className="mt-3 text-sm text-red-600 leading-6 break-words">
+              {this.state.errorMessage}
             </p>
 
             <button
