@@ -3,22 +3,28 @@ import { X, Heart, ShoppingBag, Trash2 } from "lucide-react";
 import { Product } from "../types";
 
 interface WishlistDrawerProps {
-  products: Product[];
-  wishlistIds: string[];
+  isOpen: boolean;
   onClose: () => void;
-  onToggleWishlist: (productId: string) => void;
-  onOpenProduct: (product: Product) => void;
+  wishlistIds: string[];
+  allProducts: Product[];
+  onRemove: (productId: string) => void;
+  onClear: () => void;
+  onQuickView: (product: Product) => void;
 }
 
 export function WishlistDrawer({
-  products,
-  wishlistIds,
+  isOpen,
   onClose,
-  onToggleWishlist,
-  onOpenProduct,
+  wishlistIds,
+  allProducts,
+  onRemove,
+  onClear,
+  onQuickView,
 }: WishlistDrawerProps) {
-  const wishlistProducts = products.filter((product) =>
-    wishlistIds.includes(product.id)
+  if (!isOpen) return null;
+
+  const wishlistProducts = (allProducts || []).filter((product) =>
+    (wishlistIds || []).includes(product.id)
   );
 
   return (
@@ -65,7 +71,7 @@ export function WishlistDrawer({
                   className="flex gap-3 p-3 rounded-2xl border border-neutral-200 bg-white"
                 >
                   <button
-                    onClick={() => onOpenProduct(product)}
+                    onClick={() => onQuickView(product)}
                     className="w-24 h-28 rounded-xl overflow-hidden bg-neutral-100 shrink-0"
                   >
                     <img
@@ -78,7 +84,7 @@ export function WishlistDrawer({
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start justify-between gap-2">
                       <button
-                        onClick={() => onOpenProduct(product)}
+                        onClick={() => onQuickView(product)}
                         className="text-left"
                       >
                         <h3 className="text-sm font-bold text-neutral-900 line-clamp-2">
@@ -87,7 +93,7 @@ export function WishlistDrawer({
                       </button>
 
                       <button
-                        onClick={() => onToggleWishlist(product.id)}
+                        onClick={() => onRemove(product.id)}
                         className="w-8 h-8 rounded-lg bg-neutral-100 flex items-center justify-center shrink-0"
                         aria-label="Remove from wishlist"
                       >
@@ -112,7 +118,7 @@ export function WishlistDrawer({
                     </div>
 
                     <button
-                      onClick={() => onOpenProduct(product)}
+                      onClick={() => onQuickView(product)}
                       className="mt-2 h-9 px-3 rounded-lg bg-neutral-950 text-white text-xs font-bold flex items-center gap-1.5"
                     >
                       <ShoppingBag className="w-3.5 h-3.5" />
@@ -124,7 +130,18 @@ export function WishlistDrawer({
             </div>
           )}
         </div>
+
+        {wishlistProducts.length > 0 && (
+          <div className="p-4 border-t border-neutral-200">
+            <button
+              onClick={onClear}
+              className="w-full h-10 rounded-xl border border-neutral-200 text-sm font-bold"
+            >
+              Clear Wishlist
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
-              }
+}                
