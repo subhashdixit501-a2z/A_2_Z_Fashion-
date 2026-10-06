@@ -35,7 +35,7 @@ export class ErrorBoundary extends React.Component<
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("A_2_Z_Fashion Error:", error);
+    console.error("A2Z DEBUG ERROR:", error);
     console.error("Component Stack:", errorInfo?.componentStack);
 
     this.setState({
@@ -109,7 +109,7 @@ export class ErrorBoundary extends React.Component<
             </h1>
 
             <p className="mt-2 text-xs text-neutral-500 text-center">
-              Runtime error detected
+              NEW DEBUG VERSION
             </p>
 
             <div className="mt-5 rounded-2xl bg-red-50 border border-red-200 p-4">
