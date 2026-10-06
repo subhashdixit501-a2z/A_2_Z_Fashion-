@@ -1,4 +1,6 @@
 import { initializeApp } from "firebase/app";
+import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAwToPbNyLNAeYfpZfHw8v2UzjA97X6VCE",
@@ -12,6 +14,10 @@ const firebaseConfig = {
 };
 
 export const app = initializeApp(firebaseConfig);
+
+export const auth = getAuth(app);
+
+export const db = getFirestore(app);
 
 export const testConnection = () => {
   console.log("Firebase connected:", app.name);
