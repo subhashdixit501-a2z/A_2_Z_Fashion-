@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { SOCIAL_LINKS } from './socialLinks';
+import { DEFAULT_SOCIAL_LINKS, loadSocialLinks, type SocialLinks } from './socialLinks';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { testConnection } from './firebase';
 import { subscribeToProducts } from './services/productService';
@@ -60,6 +60,7 @@ function FashionStoreApp() {
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isCategoriesModalOpen, setIsCategoriesModalOpen] = useState(false);
+  const [socialLinks, setSocialLinks] = useState<SocialLinks>(DEFAULT_SOCIAL_LINKS);
 
   // Wishlist persisted in localStorage
   const [wishlistIds, setWishlistIds] = useState<string[]>(() => {
@@ -95,6 +96,7 @@ function FashionStoreApp() {
 
   // 1. Boot connection test & 2. Firestore listener
   useEffect(() => {
+    loadSocialLinks().then(setSocialLinks);
     testConnection();
 
     const unsubscribe = subscribeToProducts(
@@ -198,6 +200,7 @@ function FashionStoreApp() {
         onOpenWishlist={() => setIsWishlistOpen(true)}
         onOpenAdmin={() => setIsAdminOpen(true)}
         isAdminLoggedIn={isAdmin}
+        socialLinks={socialLinks}
       />
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8 pb-24 md:pb-12">
@@ -342,7 +345,7 @@ function FashionStoreApp() {
         {/* Social links */}
         <section id="social" className="rounded-3xl bg-[#0b0b0d] text-white p-6 sm:p-8">
           <div className="text-center"><div className="text-xs uppercase tracking-[.28em] text-[#ff1686] font-bold">Stay Connected</div><h2 className="text-2xl sm:text-3xl font-black mt-2">Join the A_2_Z_Fashion Family</h2><div className="flex flex-wrap justify-center gap-3 mt-5">{[
-            ['Facebook',SOCIAL_LINKS.facebook],['Instagram',SOCIAL_LINKS.instagram],['YouTube',SOCIAL_LINKS.youtube],['Telegram',SOCIAL_LINKS.telegram]
+            ['Facebook',socialLinks.facebook],['Instagram',socialLinks.instagram],['YouTube',socialLinks.youtube],['Telegram',socialLinks.telegram]
           ].map(([label,href])=><a key={label} href={href} target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 rounded-full border border-white/15 bg-white/5 hover:bg-[#ff1686] text-sm font-bold transition">{label}</a>)}</div></div>
         </section>
 
@@ -387,9 +390,6 @@ function FashionStoreApp() {
             </button>
             <button onClick={() => setFilters((p) => ({ ...p, category: 'Accessories' }))} className="hover:text-white">
               Accessories
-            </button>
-            <button onClick={() => setIsAdminOpen(true)} className="text-rose-400 hover:text-rose-300 font-semibold">
-              Admin Login
             </button>
           </div>
         </div>
@@ -458,6 +458,8 @@ function FashionStoreApp() {
           onClose={() => setIsAdminOpen(false)}
           products={products}
           onRefreshProducts={() => {}}
+          socialLinks={socialLinks}
+          onSocialLinksSaved={setSocialLinks}
         />
       )}
 
