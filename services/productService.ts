@@ -10,6 +10,7 @@ import {
   orderBy,
   serverTimestamp,
 } from "firebase/firestore";
+
 import { getFirestore } from "firebase/firestore";
 import { app } from "../firebase";
 import { Product } from "../types";
@@ -49,7 +50,7 @@ export async function getProducts(): Promise<Product[]> {
   })) as Product[];
 }
 
-export async function addProduct(
+export async function createProduct(
   product: Omit<Product, "id">
 ): Promise<string> {
   const docRef = await addDoc(productsCollection, {
@@ -60,15 +61,20 @@ export async function addProduct(
   return docRef.id;
 }
 
+// पुराने code के लिए भी compatible रहेगा
+export const addProduct = createProduct;
+
 export async function updateProduct(
   productId: string,
   data: Partial<Product>
 ): Promise<void> {
   const productRef = doc(db, "products", productId);
+
   await updateDoc(productRef, data);
 }
 
 export async function deleteProduct(productId: string): Promise<void> {
   const productRef = doc(db, "products", productId);
+
   await deleteDoc(productRef);
 }
