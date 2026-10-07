@@ -1372,18 +1372,11 @@ export function AdminPortal({
                                 key
                               ]
                             }
-                            onChange={(
-                              e
-                            ) =>
-                              setSocialForm(
-                                (f) => ({
-                                  ...f,
-                                  [key]:
-                                    e
-                                      .target
-                                      .value,
-                                })
-                              }
+                            onChange={(e) =>
+  setSocialForm((prev) => ({
+    ...prev,
+    [key]: e.target.value,
+  }))
                             }
                             placeholder={`Your ${label} link`}
                             className="w-full h-11 pl-10 pr-3 rounded-xl border border-neutral-200"
