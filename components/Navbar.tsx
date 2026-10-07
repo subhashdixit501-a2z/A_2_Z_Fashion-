@@ -1,6 +1,5 @@
 import React from "react";
-import { Search, Heart, UserRound, SlidersHorizontal } from "lucide-react";
-import type { SocialLinks } from "../socialLinks";
+import { Search, Heart, UserRound } from "lucide-react";
 
 interface NavbarProps {
   searchQuery: string;
@@ -9,47 +8,108 @@ interface NavbarProps {
   onOpenWishlist: () => void;
   onOpenAdmin: () => void;
   isAdminLoggedIn: boolean;
-  socialLinks?: SocialLinks;
 }
 
-export function Navbar({ searchQuery, onSearchChange, wishlistCount, onOpenWishlist, onOpenAdmin, socialLinks }: NavbarProps) {
-  const social = [
-    { label: "Facebook", href: socialLinks?.facebook || "#" },
-    { label: "Instagram", href: socialLinks?.instagram || "#" },
-    { label: "YouTube", href: socialLinks?.youtube || "#" },
-    { label: "Telegram", href: socialLinks?.telegram || "#" },
-  ];
-
+export function Navbar({
+  searchQuery,
+  onSearchChange,
+  wishlistCount,
+  onOpenWishlist,
+  onOpenAdmin,
+}: NavbarProps) {
   return (
-    <header className="sticky top-0 z-50 bg-[#0b0b0d]/95 text-white backdrop-blur-xl shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-        <div className="flex items-center gap-3">
-          <button onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })} className="flex items-center gap-3 shrink-0" aria-label="A_2_Z_Fashion home">
-            <img src="/a2z-logo.png" alt="A_2_Z_Fashion" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[#ff1686] shadow-[0_0_20px_rgba(255,22,134,.25)]" />
+    <header className="sticky top-0 z-50 bg-[#080808]/95 text-white backdrop-blur-xl border-b border-white/10 shadow-[0_4px_25px_rgba(0,0,0,0.25)]">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3">
+        
+        {/* Main Header */}
+        <div className="flex items-center gap-3 sm:gap-5">
+          
+          {/* Logo + Brand */}
+          <button
+            onClick={() =>
+              window.scrollTo({
+                top: 0,
+                behavior: "smooth",
+              })
+            }
+            className="flex items-center gap-2 sm:gap-3 shrink-0"
+            aria-label="A_2_Z_Fashion home"
+          >
+            <img
+              src="/a2z-logo.png"
+              alt="A_2_Z_Fashion"
+              className="w-12 h-12 sm:w-16 sm:h-16 rounded-full object-cover border-2 border-[#d4af37] shadow-[0_0_22px_rgba(212,175,55,0.25)]"
+            />
+
             <div className="hidden sm:block text-left">
-              <div className="text-2xl sm:text-3xl font-black tracking-tight"><span className="text-white">A_2_Z_</span><span className="text-[#ff1686] italic">Fashion</span></div>
-              <div className="text-[10px] tracking-[0.32em] text-neutral-300 mt-1">STYLE <span className="text-[#ff1686]">•</span> TRENDS <span className="text-[#ff1686]">•</span> YOU</div>
+              <div className="text-2xl sm:text-3xl font-black tracking-tight leading-none">
+                <span className="text-white">A_2_Z_</span>
+                <span className="text-[#ff1686] italic">Fashion</span>
+              </div>
+
+              <div className="mt-2 text-[9px] font-semibold tracking-[0.32em] text-neutral-400">
+                STYLE
+                <span className="text-[#d4af37] mx-1">•</span>
+                QUALITY
+                <span className="text-[#d4af37] mx-1">•</span>
+                YOU
+              </div>
             </div>
           </button>
 
-          <div className="flex-1 relative">
+          {/* Search */}
+          <div className="flex-1 relative min-w-0">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
-            <input id="a2z-search" type="search" value={searchQuery} onChange={(e) => onSearchChange(e.target.value)} placeholder="Search fashion products..." className="w-full h-12 sm:h-14 pl-11 pr-12 rounded-2xl bg-white text-neutral-900 placeholder:text-neutral-400 outline-none ring-0 focus:ring-2 focus:ring-[#ff1686] text-sm sm:text-base" />
-            <SlidersHorizontal className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-700" />
+
+            <input
+              id="a2z-search"
+              type="search"
+              value={searchQuery}
+              onChange={(e) => onSearchChange(e.target.value)}
+              placeholder="Search fashion products..."
+              className="w-full h-11 sm:h-13 pl-11 pr-4 rounded-2xl bg-white text-neutral-900 placeholder:text-neutral-400 outline-none focus:ring-2 focus:ring-[#ff1686] text-sm sm:text-base shadow-inner"
+            />
           </div>
 
-          <button onClick={onOpenWishlist} className="relative w-11 h-11 rounded-full flex items-center justify-center hover:bg-white/10" aria-label="Wishlist">
-            <Heart className="w-7 h-7" />
-            {wishlistCount > 0 && <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#ff1686] text-white text-[10px] font-black flex items-center justify-center">{wishlistCount}</span>}
+          {/* Wishlist */}
+          <button
+            onClick={onOpenWishlist}
+            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:bg-white/10 transition shrink-0"
+            aria-label="Wishlist"
+          >
+            <Heart className="w-6 h-6 sm:w-7 sm:h-7" />
+
+            {wishlistCount > 0 && (
+              <span className="absolute -top-1 -right-1 min-w-5 h-5 px-1 rounded-full bg-[#ff1686] text-white text-[10px] font-black flex items-center justify-center shadow-md">
+                {wishlistCount}
+              </span>
+            )}
           </button>
-          <button onClick={onOpenAdmin} className="hidden sm:flex w-11 h-11 rounded-full items-center justify-center hover:bg-white/10" aria-label="Account">
+
+          {/* Account / Admin */}
+          <button
+            onClick={onOpenAdmin}
+            className="w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center hover:bg-white/10 transition shrink-0"
+            aria-label="Account"
+          >
             <UserRound className="w-6 h-6" />
           </button>
         </div>
 
-        <div className="mt-2 flex items-center justify-center gap-4 text-[10px] text-neutral-300">
-          <span className="text-neutral-500">Connect with us</span>
-          {social.map(s => <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" className="hover:text-[#ff1686] transition">{s.label}</a>)}
+        {/* Mobile Brand Line */}
+        <div className="sm:hidden text-center mt-2">
+          <div className="text-lg font-black">
+            <span className="text-white">A_2_Z_</span>
+            <span className="text-[#ff1686] italic">Fashion</span>
+          </div>
+
+          <div className="text-[8px] tracking-[0.28em] text-neutral-500 mt-1">
+            STYLE
+            <span className="text-[#d4af37] mx-1">•</span>
+            QUALITY
+            <span className="text-[#d4af37] mx-1">•</span>
+            YOU
+          </div>
         </div>
       </div>
     </header>
