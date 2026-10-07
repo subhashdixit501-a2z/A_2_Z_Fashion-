@@ -1,71 +1,95 @@
 import React from "react";
-import { Home, Heart, Grid2X2, Shield } from "lucide-react";
+import { Home, Layers, Search, Heart, User } from "lucide-react";
+import { ProductCategory } from "../types";
 
 interface MobileBottomNavProps {
-  onHome: () => void;
-  onWishlist: () => void;
-  onCategories: () => void;
-  onAdmin: () => void;
+  onGoHome: () => void;
+  onOpenCategories: () => void;
+  onOpenWishlist: () => void;
+  onOpenAdmin: () => void;
   wishlistCount: number;
+  currentCategory: ProductCategory | "All";
   isAdminLoggedIn: boolean;
 }
 
-export function MobileBottomNav({
-  onHome,
-  onWishlist,
-  onCategories,
-  onAdmin,
+export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
+  onGoHome,
+  onOpenCategories,
+  onOpenWishlist,
+  onOpenAdmin,
   wishlistCount,
-  isAdminLoggedIn,
-}: MobileBottomNavProps) {
+}) => {
+  const openSearch = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    setTimeout(() => {
+      const searchInput = document.getElementById(
+        "a2z-search"
+      ) as HTMLInputElement | null;
+
+      searchInput?.focus();
+    }, 350);
+  };
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-neutral-200 sm:hidden">
-      <div className="grid grid-cols-4 h-16">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-lg border-t border-neutral-200/80 px-2 py-1.5 shadow-[0_-4px_20px_rgba(0,0,0,0.06)] pb-[max(0.5rem,env(safe-area-inset-bottom))]">
+      <div className="grid grid-cols-5 items-center">
+
+        {/* Home */}
         <button
-          onClick={onHome}
-          className="flex flex-col items-center justify-center gap-1 text-neutral-700"
+          onClick={onGoHome}
+          className="flex flex-col items-center justify-center gap-1 py-1 text-neutral-700"
         >
           <Home className="w-5 h-5" />
-          <span className="text-[10px] font-bold">Home</span>
+          <span className="text-[11px] font-medium">Home</span>
         </button>
 
+        {/* Categories */}
         <button
-          onClick={onCategories}
-          className="flex flex-col items-center justify-center gap-1 text-neutral-700"
+          onClick={onOpenCategories}
+          className="flex flex-col items-center justify-center gap-1 py-1 text-neutral-700"
         >
-          <Grid2X2 className="w-5 h-5" />
-          <span className="text-[10px] font-bold">Categories</span>
+          <Layers className="w-5 h-5" />
+          <span className="text-[11px] font-medium">Categories</span>
         </button>
 
+        {/* Search */}
         <button
-          onClick={onWishlist}
-          className="relative flex flex-col items-center justify-center gap-1 text-neutral-700"
+          onClick={openSearch}
+          className="flex flex-col items-center justify-center gap-1 py-1 text-neutral-700"
+        >
+          <Search className="w-5 h-5" />
+          <span className="text-[11px] font-medium">Search</span>
+        </button>
+
+        {/* Wishlist */}
+        <button
+          onClick={onOpenWishlist}
+          className="relative flex flex-col items-center justify-center gap-1 py-1 text-neutral-700"
         >
           <div className="relative">
             <Heart className="w-5 h-5" />
 
             {wishlistCount > 0 && (
-              <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-rose-600 text-white text-[9px] font-black flex items-center justify-center">
+              <span className="absolute -top-2 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#ff1686] text-white text-[9px] font-bold flex items-center justify-center">
                 {wishlistCount}
               </span>
             )}
           </div>
 
-          <span className="text-[10px] font-bold">Wishlist</span>
+          <span className="text-[11px] font-medium">Wishlist</span>
         </button>
 
+        {/* Account */}
         <button
-          onClick={onAdmin}
-          className="flex flex-col items-center justify-center gap-1 text-neutral-700"
+          onClick={onOpenAdmin}
+          className="flex flex-col items-center justify-center gap-1 py-1 text-neutral-700"
         >
-          <Shield
-            className={`w-5 h-5 ${
-              isAdminLoggedIn ? "text-emerald-600" : ""
-            }`}
-          />
-          <span className="text-[10px] font-bold">Admin</span>
+          <User className="w-5 h-5" />
+          <span className="text-[11px] font-medium">Account</span>
         </button>
+
       </div>
     </nav>
   );
-}
+};
