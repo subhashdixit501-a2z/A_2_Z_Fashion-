@@ -14,6 +14,7 @@ import {
   Link2,
   Share2,
   Save,
+  Upload,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { Product, ProductCategory } from "../types";
@@ -45,12 +46,16 @@ const CATEGORIES: ProductCategory[] = [
   "Accessories",
 ];
 
+const MAX_IMAGES = 4;
+const MAX_IMAGE_BYTES = 150000;
+
 const emptyForm = () => ({
   name: "",
   price: "",
   originalPrice: "",
   category: "Women" as ProductCategory,
-  imageUrl: "",
+  imageUrls: [] as string[],
+  imageUrlInput: "",
   affiliateLink: "",
   description: "",
   sizes: "",
@@ -76,26 +81,44 @@ export function AdminPortal({
   const [error, setError] = useState("");
 
   const [formOpen, setFormOpen] = useState(false);
-  const [section, setSection] = useState<"products" | "social">("products");
+  const [section, setSection] =
+    useState<"products" | "social">("products");
 
   const [socialForm, setSocialForm] =
-    useState<SocialLinks>(socialLinks || DEFAULT_SOCIAL_LINKS);
+    useState<SocialLinks>(
+      socialLinks || DEFAULT_SOCIAL_LINKS
+    );
+
   const [savingSocial, setSavingSocial] = useState(false);
 
-  const [editing, setEditing] = useState<Product | null>(null);
+  const [editing, setEditing] =
+    useState<Product | null>(null);
+
   const [form, setForm] = useState(emptyForm());
   const [saving, setSaving] = useState(false);
-  const [processingImage, setProcessingImage] = useState(false);
-  const [deleting, setDeleting] = useState<string | null>(null);
+  const [processingImage, setProcessingImage] =
+    useState(false);
 
-  const fileRef = useRef<HTMLInputElement>(null);
+  const [deleting, setDeleting] =
+    useState<string | null>(null);
+
+  const galleryRef =
+    useRef<HTMLInputElement>(null);
+
+  const cameraRef =
+    useRef<HTMLInputElement>(null);
 
   React.useEffect(() => {
-    setSocialForm(socialLinks || DEFAULT_SOCIAL_LINKS);
+    setSocialForm(
+      socialLinks || DEFAULT_SOCIAL_LINKS
+    );
   }, [socialLinks]);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault();
+
     setError("");
     setLoginLoading(true);
 
@@ -115,7 +138,9 @@ export function AdminPortal({
 
     if (
       values.some(
-        (v) => v.trim() && !/^https?:\/\//i.test(v.trim())
+        (v) =>
+          v.trim() &&
+          !/^https?:\/\//i.test(v.trim())
       )
     ) {
       setError(
@@ -135,11 +160,14 @@ export function AdminPortal({
       };
 
       await saveSocialLinks(cleaned);
+
       onSocialLinksSaved?.(cleaned);
+
       setError("");
     } catch (err: any) {
       setError(
-        err?.message || "Could not save social links."
+        err?.message ||
+          "Could not save social links."
       );
     } finally {
       setSavingSocial(false);
@@ -154,23 +182,41 @@ export function AdminPortal({
   };
 
   const openEdit = (p: Product) => {
+    const existingImages =
+      p.images?.filter(Boolean) || [];
+
+    const fallbackImages =
+      existingImages.length > 0
+        ? existingImages
+        : [
+            p.imageUrl ||
+              p.image ||
+              "",
+          ].filter(Boolean);
+
     setEditing(p);
 
     setForm({
       name: p.name || "",
-      price: String(p.price ?? ""),
-      originalPrice: String(
-        p.originalPrice ?? p.mrp ?? ""
+
+      price: String(
+        p.price ?? ""
       ),
+
+      originalPrice: String(
+        p.originalPrice ??
+          p.mrp ??
+          ""
+      ),
+
       category:
         p.category === "All"
           ? "Women"
           : p.category,
 
-      imageUrl:
-        p.imageUrl ||
-        p.image ||
-        (p.images?.[0] || ""),
+      imageUrls: fallbackImages,
+
+      imageUrlInput: "",
 
       affiliateLink:
         p.affiliateLink || "",
@@ -188,7 +234,9 @@ export function AdminPortal({
         String(p.rating ?? 4.5),
 
       reviewsCount:
-        String(p.reviewsCount ?? 50),
+        String(
+          p.reviewsCount ?? 50
+        ),
 
       isFeatured:
         Boolean(p.isFeatured),
@@ -201,77 +249,63 @@ export function AdminPortal({
     setFormOpen(true);
   };
 
-  const handleImage = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
+  const compressImage = (
+    file: File
+  ): Promise<string> => {
+    return new Promise(
+      (resolve, reject) => {
+        const reader =
+          new FileReader();
 
-    e.target.value = "";
-
-    if (!file) return;
-
-    if (!file.type.startsWith("image/")) {
-      setError("Please choose an image file.");
-      return;
-    }
-
-    setProcessingImage(true);
-    setError("");
-
-    try {
-      const source = await new Promise<string>(
-        (resolve, reject) => {
-          const reader = new FileReader();
-
-          reader.onload = () =>
-            resolve(String(reader.result));
-
-          reader.onerror = () =>
-            reject(
-              new Error(
-                "Could not read the photo."
-              )
+        reader.onload = () => {
+          const source =
+            String(
+              reader.result
             );
 
-          reader.readAsDataURL(file);
-        }
-      );
-
-      const result = await new Promise<string>(
-        (resolve, reject) => {
-          const img = new Image();
+          const img =
+            new Image();
 
           img.onload = () => {
-            const max = 1000;
+            let max = 800;
 
-            const scale = Math.min(
-              1,
-              max /
-                Math.max(
-                  img.naturalWidth,
-                  img.naturalHeight
-                )
-            );
+            const scale =
+              Math.min(
+                1,
+                max /
+                  Math.max(
+                    img.naturalWidth,
+                    img.naturalHeight
+                  )
+              );
 
             const canvas =
-              document.createElement("canvas");
+              document.createElement(
+                "canvas"
+              );
 
-            canvas.width = Math.max(
-              1,
-              Math.round(
-                img.naturalWidth * scale
-              )
-            );
+            canvas.width =
+              Math.max(
+                1,
+                Math.round(
+                  img.naturalWidth *
+                    scale
+                )
+              );
 
-            canvas.height = Math.max(
-              1,
-              Math.round(
-                img.naturalHeight * scale
-              )
-            );
+            canvas.height =
+              Math.max(
+                1,
+                Math.round(
+                  img.naturalHeight *
+                    scale
+                )
+              );
 
             const ctx =
-              canvas.getContext("2d");
+              canvas.getContext(
+                "2d"
+              );
 
             if (!ctx) {
               reject(
@@ -290,22 +324,84 @@ export function AdminPortal({
               canvas.height
             );
 
-            let data = canvas.toDataURL(
-              "image/jpeg",
-              0.78
-            );
+            let quality = 0.72;
 
-            if (data.length > 700000) {
-              data = canvas.toDataURL(
+            let data =
+              canvas.toDataURL(
                 "image/jpeg",
-                0.62
+                quality
               );
+
+            while (
+              data.length >
+                MAX_IMAGE_BYTES &&
+              quality > 0.35
+            ) {
+              quality -= 0.08;
+
+              data =
+                canvas.toDataURL(
+                  "image/jpeg",
+                  quality
+                );
             }
 
-            if (data.length > 900000) {
+            if (
+              data.length >
+              MAX_IMAGE_BYTES
+            ) {
+              max = 600;
+
+              const scale2 =
+                Math.min(
+                  1,
+                  max /
+                    Math.max(
+                      img.naturalWidth,
+                      img.naturalHeight
+                    )
+                );
+
+              canvas.width =
+                Math.max(
+                  1,
+                  Math.round(
+                    img.naturalWidth *
+                      scale2
+                  )
+                );
+
+              canvas.height =
+                Math.max(
+                  1,
+                  Math.round(
+                    img.naturalHeight *
+                      scale2
+                  )
+                );
+
+              ctx.drawImage(
+                img,
+                0,
+                0,
+                canvas.width,
+                canvas.height
+              );
+
+              data =
+                canvas.toDataURL(
+                  "image/jpeg",
+                  0.5
+                );
+            }
+
+            if (
+              data.length >
+              MAX_IMAGE_BYTES
+            ) {
               reject(
                 new Error(
-                  "Photo is too large. Please choose a smaller photo."
+                  "Photo is too large. Please choose another photo."
                 )
               );
               return;
@@ -322,48 +418,190 @@ export function AdminPortal({
             );
 
           img.src = source;
-        }
-      );
+        };
 
-      setForm((f) => ({
-        ...f,
-        imageUrl: result,
+        reader.onerror = () =>
+          reject(
+            new Error(
+              "Could not read the photo."
+            )
+          );
+
+        reader.readAsDataURL(file);
+      }
+    );
+  };
+
+  const handleImages = async (
+    files: FileList | null
+  ) => {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    const available =
+      MAX_IMAGES -
+      form.imageUrls.length;
+
+    if (available <= 0) {
+      setError(
+        `You can add maximum ${MAX_IMAGES} photos.`
+      );
+      return;
+    }
+
+    setProcessingImage(true);
+    setError("");
+
+    try {
+      const selected =
+        Array.from(files)
+          .slice(0, available);
+
+      const validFiles =
+        selected.filter((file) =>
+          file.type.startsWith(
+            "image/"
+          )
+        );
+
+      if (
+        validFiles.length === 0
+      ) {
+        setError(
+          "Please choose image files only."
+        );
+        return;
+      }
+
+      const processed: string[] =
+        [];
+
+      for (
+        const file of validFiles
+      ) {
+        const image =
+          await compressImage(
+            file
+          );
+
+        processed.push(image);
+      }
+
+      setForm((current) => ({
+        ...current,
+        imageUrls: [
+          ...current.imageUrls,
+          ...processed,
+        ].slice(0, MAX_IMAGES),
       }));
     } catch (err: any) {
       setError(
         err?.message ||
-          "Could not upload the photo."
+          "Could not process the photo."
       );
     } finally {
       setProcessingImage(false);
     }
   };
 
-  const save = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+  const removeImage = (
+    index: number
+  ) => {
+    setForm((current) => ({
+      ...current,
+      imageUrls:
+        current.imageUrls.filter(
+          (_, i) => i !== index
+        ),
+    }));
+  };
 
-    if (!form.name.trim()) {
-      setError("Product name is required.");
-      return;
-    }
+  const addImageUrl = () => {
+    const url =
+      form.imageUrlInput.trim();
 
-    const price = Number(form.price);
-
-    if (!Number.isFinite(price) || price < 0) {
-      setError("Enter a valid price.");
-      return;
-    }
-
-    if (!form.imageUrl.trim()) {
+    if (!url) {
       setError(
-        "Please choose a product photo or paste an image URL."
+        "Please enter an image URL."
       );
       return;
     }
 
-    if (!form.affiliateLink.trim()) {
-      setError("BUY NOW link is required.");
+    if (
+      !/^https?:\/\//i.test(url)
+    ) {
+      setError(
+        "Image URL must start with https:// or http://"
+      );
+      return;
+    }
+
+    if (
+      form.imageUrls.length >=
+      MAX_IMAGES
+    ) {
+      setError(
+        `You can add maximum ${MAX_IMAGES} photos.`
+      );
+      return;
+    }
+
+    setForm((current) => ({
+      ...current,
+      imageUrls: [
+        ...current.imageUrls,
+        url,
+      ],
+      imageUrlInput: "",
+    }));
+
+    setError("");
+  };
+
+  const save = async (
+    e: React.FormEvent
+  ) => {
+    e.preventDefault();
+
+    setError("");
+
+    if (!form.name.trim()) {
+      setError(
+        "Product name is required."
+      );
+      return;
+    }
+
+    const price =
+      Number(form.price);
+
+    if (
+      !Number.isFinite(price) ||
+      price < 0
+    ) {
+      setError(
+        "Enter a valid price."
+      );
+      return;
+    }
+
+    if (
+      form.imageUrls.length ===
+      0
+    ) {
+      setError(
+        "Please add at least one product photo."
+      );
+      return;
+    }
+
+    if (
+      !form.affiliateLink.trim()
+    ) {
+      setError(
+        "BUY NOW link is required."
+      );
       return;
     }
 
@@ -371,31 +609,42 @@ export function AdminPortal({
 
     try {
       /*
-       * marketplace is kept internally only for compatibility
-       * with the existing Product/Firebase structure.
-       * It is NOT shown to customers.
+       * Marketplace remains internal only
+       * for compatibility with the existing
+       * Product/Firebase structure.
+       *
+       * It is NOT displayed to customers.
        */
       const existingMarketplace =
-        editing?.marketplace || "Meesho";
+        editing?.marketplace ||
+        "Meesho";
 
       const data: any = {
         name: form.name.trim(),
 
         price,
 
-        originalPrice: form.originalPrice
-          ? Number(form.originalPrice)
-          : price,
+        originalPrice:
+          form.originalPrice
+            ? Number(
+                form.originalPrice
+              )
+            : price,
 
-        category: form.category,
+        category:
+          form.category,
 
-        marketplace: existingMarketplace,
+        marketplace:
+          existingMarketplace,
 
-        image: form.imageUrl.trim(),
+        image:
+          form.imageUrls[0],
 
-        imageUrl: form.imageUrl.trim(),
+        imageUrl:
+          form.imageUrls[0],
 
-        images: [form.imageUrl.trim()],
+        images:
+          form.imageUrls,
 
         affiliateLink:
           form.affiliateLink.trim(),
@@ -403,21 +652,30 @@ export function AdminPortal({
         description:
           form.description.trim(),
 
-        sizes: form.sizes
-          .split(",")
-          .map((x) => x.trim())
-          .filter(Boolean),
+        sizes:
+          form.sizes
+            .split(",")
+            .map((x) =>
+              x.trim()
+            )
+            .filter(Boolean),
 
-        colors: form.colors
-          .split(",")
-          .map((x) => x.trim())
-          .filter(Boolean),
+        colors:
+          form.colors
+            .split(",")
+            .map((x) =>
+              x.trim()
+            )
+            .filter(Boolean),
 
         rating:
-          Number(form.rating) || 4.5,
+          Number(form.rating) ||
+          4.5,
 
         reviewsCount:
-          Number(form.reviewsCount) || 50,
+          Number(
+            form.reviewsCount
+          ) || 50,
 
         isFeatured:
           form.isFeatured,
@@ -432,10 +690,15 @@ export function AdminPortal({
           data
         );
       } else {
-        await createProduct(data);
+        await createProduct(
+          data
+        );
       }
 
       setFormOpen(false);
+      setEditing(null);
+      setForm(emptyForm());
+
       onRefreshProducts?.();
     } catch (err: any) {
       setError(
@@ -447,8 +710,14 @@ export function AdminPortal({
     }
   };
 
-  const remove = async (id: string) => {
-    if (!confirm("Delete this product?")) {
+  const remove = async (
+    id: string
+  ) => {
+    if (
+      !confirm(
+        "Delete this product?"
+      )
+    ) {
       return;
     }
 
@@ -470,10 +739,11 @@ export function AdminPortal({
 
   return (
     <div className="fixed inset-0 z-[90] bg-black/60 flex items-end sm:items-center justify-center p-0 sm:p-4">
+
       <div className="bg-white w-full sm:max-w-3xl max-h-[94vh] overflow-y-auto rounded-t-3xl sm:rounded-3xl">
 
-        {/* Header */}
-        <div className="sticky top-0 z-20 bg-white border-b border-neutral-200 flex items-center justify-between p-4">
+        {/* HEADER */}
+        <div className="sticky top-0 z-30 bg-white border-b border-neutral-200 flex items-center justify-between p-4">
 
           <div className="flex items-center gap-3">
 
@@ -504,14 +774,16 @@ export function AdminPortal({
 
         <div className="p-4 sm:p-6">
 
-          {/* Loading */}
+          {/* LOADING */}
           {loading ? (
+
             <div className="py-12 text-center text-sm text-neutral-500">
               Checking admin session...
             </div>
+
           ) : !isAdmin ? (
 
-            /* Login */
+            /* LOGIN */
             <form
               onSubmit={handleLogin}
               className="max-w-md mx-auto space-y-4 py-4"
@@ -526,7 +798,9 @@ export function AdminPortal({
                   type="email"
                   value={email}
                   onChange={(e) =>
-                    setEmail(e.target.value)
+                    setEmail(
+                      e.target.value
+                    )
                   }
                   className="mt-1 w-full h-11 px-3 rounded-xl border border-neutral-200"
                   required
@@ -542,7 +816,9 @@ export function AdminPortal({
                   type="password"
                   value={password}
                   onChange={(e) =>
-                    setPassword(e.target.value)
+                    setPassword(
+                      e.target.value
+                    )
                   }
                   className="mt-1 w-full h-11 px-3 rounded-xl border border-neutral-200"
                   required
@@ -570,7 +846,7 @@ export function AdminPortal({
 
           ) : formOpen ? (
 
-            /* Add/Edit Product */
+            /* ADD / EDIT */
             <form
               onSubmit={save}
               className="space-y-4"
@@ -578,17 +854,26 @@ export function AdminPortal({
 
               <div className="flex items-center justify-between">
 
-                <h3 className="font-black">
-                  {editing
-                    ? "Edit Product"
-                    : "Add Product"}
-                </h3>
+                <div>
+                  <h3 className="font-black text-lg">
+                    {editing
+                      ? "Edit Product"
+                      : "Add Product"}
+                  </h3>
+
+                  <p className="text-xs text-neutral-500">
+                    Add product details and photos
+                  </p>
+                </div>
 
                 <button
                   type="button"
-                  onClick={() =>
-                    setFormOpen(false)
-                  }
+                  onClick={() => {
+                    setFormOpen(
+                      false
+                    );
+                    setEditing(null);
+                  }}
                   className="text-xs font-bold text-neutral-500"
                 >
                   Cancel
@@ -596,6 +881,7 @@ export function AdminPortal({
 
               </div>
 
+              {/* BASIC DETAILS */}
               <div className="grid sm:grid-cols-2 gap-3">
 
                 <input
@@ -616,7 +902,8 @@ export function AdminPortal({
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
-                      price: e.target.value,
+                      price:
+                        e.target.value,
                     }))
                   }
                   placeholder="Selling price ₹"
@@ -626,7 +913,9 @@ export function AdminPortal({
                 />
 
                 <input
-                  value={form.originalPrice}
+                  value={
+                    form.originalPrice
+                  }
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
@@ -634,27 +923,37 @@ export function AdminPortal({
                         e.target.value,
                     }))
                   }
-                  placeholder="MRP / original price"
+                  placeholder="MRP / Original Price"
                   inputMode="decimal"
                   className="h-11 px-3 rounded-xl border border-neutral-200"
                 />
 
                 <select
-                  value={form.category}
+                  value={
+                    form.category
+                  }
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
                       category:
-                        e.target.value as ProductCategory,
+                        e.target
+                          .value as ProductCategory,
                     }))
                   }
                   className="h-11 px-3 rounded-xl border border-neutral-200"
                 >
-                  {CATEGORIES.map((c) => (
-                    <option key={c}>
-                      {c}
-                    </option>
-                  ))}
+                  {CATEGORIES.map(
+                    (category) => (
+                      <option
+                        key={category}
+                        value={
+                          category
+                        }
+                      >
+                        {category}
+                      </option>
+                    )
+                  )}
                 </select>
 
                 <input
@@ -662,10 +961,11 @@ export function AdminPortal({
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
-                      sizes: e.target.value,
+                      sizes:
+                        e.target.value,
                     }))
                   }
-                  placeholder="Sizes (S, M, L, XL)"
+                  placeholder="Sizes: S, M, L, XL"
                   className="h-11 px-3 rounded-xl border border-neutral-200"
                 />
 
@@ -674,15 +974,18 @@ export function AdminPortal({
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
-                      colors: e.target.value,
+                      colors:
+                        e.target.value,
                     }))
                   }
-                  placeholder="Colors (Pink, Black, Red)"
+                  placeholder="Colors: Pink, Black, Red"
                   className="h-11 px-3 rounded-xl border border-neutral-200"
                 />
 
                 <input
-                  value={form.affiliateLink}
+                  value={
+                    form.affiliateLink
+                  }
                   onChange={(e) =>
                     setForm((f) => ({
                       ...f,
@@ -697,76 +1000,199 @@ export function AdminPortal({
 
               </div>
 
-              {/* Photo */}
+              {/* MULTIPLE PHOTOS */}
               <div className="p-4 rounded-2xl border border-neutral-200 bg-neutral-50">
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between gap-2">
 
-                  <input
-                    ref={fileRef}
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    onChange={handleImage}
-                    className="hidden"
-                  />
+                  <div>
+                    <h4 className="text-sm font-black">
+                      Product Photos
+                    </h4>
+
+                    <p className="text-[11px] text-neutral-500 mt-1">
+                      Add up to {MAX_IMAGES} photos
+                    </p>
+                  </div>
+
+                  <div className="text-xs font-bold text-neutral-500">
+                    {form.imageUrls.length}/
+                    {MAX_IMAGES}
+                  </div>
+
+                </div>
+
+                {/* HIDDEN GALLERY INPUT */}
+                <input
+                  ref={galleryRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    handleImages(
+                      e.target.files
+                    );
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+
+                {/* HIDDEN CAMERA INPUT */}
+                <input
+                  ref={cameraRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={(e) => {
+                    handleImages(
+                      e.target.files
+                    );
+                    e.target.value = "";
+                  }}
+                  className="hidden"
+                />
+
+                <div className="grid grid-cols-2 gap-2 mt-4">
 
                   <button
                     type="button"
                     onClick={() =>
-                      fileRef.current?.click()
+                      galleryRef.current?.click()
                     }
-                    disabled={processingImage}
-                    className="h-11 px-4 rounded-xl bg-rose-600 text-white text-xs font-black flex items-center gap-2 disabled:opacity-60"
+                    disabled={
+                      processingImage ||
+                      form.imageUrls.length >=
+                        MAX_IMAGES
+                    }
+                    className="h-11 rounded-xl bg-[#ff1686] text-white text-xs font-black flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Camera className="w-4 h-4" />
-
-                    {processingImage
-                      ? "Processing..."
-                      : "Choose Photo"}
+                    <Upload className="w-4 h-4" />
+                    Gallery
                   </button>
 
-                  {form.imageUrl ? (
-                    <img
-                      src={form.imageUrl}
-                      alt="Preview"
-                      className="w-16 h-16 rounded-xl object-cover border border-neutral-200"
-                    />
-                  ) : (
-                    <div className="w-16 h-16 rounded-xl bg-white border border-dashed border-neutral-300 flex items-center justify-center">
-                      <ImageIcon className="w-5 h-5 text-neutral-400" />
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      cameraRef.current?.click()
+                    }
+                    disabled={
+                      processingImage ||
+                      form.imageUrls.length >=
+                        MAX_IMAGES
+                    }
+                    className="h-11 rounded-xl bg-neutral-950 text-white text-xs font-black flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <Camera className="w-4 h-4" />
+                    Camera
+                  </button>
 
                 </div>
 
-                <p className="text-[11px] text-neutral-500 mt-3">
-                  Gallery या Camera से product photo चुनें।
-                  Photo automatically compress होगी।
-                  Photo पर कोई code या watermark नहीं लगाया जाएगा।
-                </p>
+                {processingImage && (
+                  <div className="mt-3 flex items-center justify-center gap-2 text-xs font-bold text-[#ff1686]">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Processing photo...
+                  </div>
+                )}
 
-                <input
-                  value={
-                    form.imageUrl.startsWith("data:")
-                      ? ""
-                      : form.imageUrl
-                  }
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      imageUrl:
-                        e.target.value,
-                    }))
-                  }
-                  placeholder="या image URL paste करें"
-                  className="mt-3 w-full h-10 px-3 rounded-xl border border-neutral-200 bg-white text-xs"
-                />
+                {/* PHOTO PREVIEWS */}
+                {form.imageUrls.length >
+                  0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+
+                    {form.imageUrls.map(
+                      (url, index) => (
+                        <div
+                          key={`${url}-${index}`}
+                          className="relative aspect-square rounded-2xl overflow-hidden border border-neutral-200 bg-white"
+                        >
+
+                          <img
+                            src={url}
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+
+                          {index === 0 && (
+                            <span className="absolute left-2 bottom-2 px-2 py-1 rounded-lg bg-black/75 text-white text-[9px] font-black">
+                              MAIN
+                            </span>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeImage(
+                                index
+                              )
+                            }
+                            className="absolute top-2 right-2 w-7 h-7 rounded-full bg-white/95 text-red-600 shadow flex items-center justify-center"
+                          >
+                            <X className="w-4 h-4" />
+                          </button>
+
+                        </div>
+                      )
+                    )}
+
+                  </div>
+                )}
+
+                {/* IMAGE URL */}
+                <div className="mt-4">
+
+                  <p className="text-[11px] font-bold text-neutral-600 mb-2">
+                    Or add image by URL
+                  </p>
+
+                  <div className="flex gap-2">
+
+                    <input
+                      value={
+                        form.imageUrlInput
+                      }
+                      onChange={(e) =>
+                        setForm((f) => ({
+                          ...f,
+                          imageUrlInput:
+                            e.target.value,
+                        }))
+                      }
+                      placeholder="https://..."
+                      className="flex-1 h-10 px-3 rounded-xl border border-neutral-200 bg-white text-xs"
+                    />
+
+                    <button
+                      type="button"
+                      onClick={
+                        addImageUrl
+                      }
+                      disabled={
+                        form.imageUrls.length >=
+                        MAX_IMAGES
+                      }
+                      className="h-10 px-4 rounded-xl bg-white border border-neutral-200 text-xs font-black disabled:opacity-50"
+                    >
+                      Add
+                    </button>
+
+                  </div>
+
+                </div>
+
+                <p className="text-[10px] text-neutral-500 mt-3">
+                  Gallery में multiple photos select कर सकते हैं।
+                  Camera से एक-एक करके photos add कर सकते हैं।
+                  Photos पर कोई code या watermark नहीं लगाया जाएगा।
+                </p>
 
               </div>
 
+              {/* DESCRIPTION */}
               <textarea
-                value={form.description}
+                value={
+                  form.description
+                }
                 onChange={(e) =>
                   setForm((f) => ({
                     ...f,
@@ -778,18 +1204,21 @@ export function AdminPortal({
                 className="w-full min-h-28 p-3 rounded-xl border border-neutral-200"
               />
 
-              {/* Featured / Stock */}
+              {/* FEATURED / STOCK */}
               <div className="grid grid-cols-2 gap-3">
 
                 <label className="flex items-center gap-2 p-3 rounded-xl border border-neutral-200 text-sm font-semibold">
                   <input
                     type="checkbox"
-                    checked={form.isFeatured}
+                    checked={
+                      form.isFeatured
+                    }
                     onChange={(e) =>
                       setForm((f) => ({
                         ...f,
                         isFeatured:
-                          e.target.checked,
+                          e.target
+                            .checked,
                       }))
                     }
                   />
@@ -799,12 +1228,15 @@ export function AdminPortal({
                 <label className="flex items-center gap-2 p-3 rounded-xl border border-neutral-200 text-sm font-semibold">
                   <input
                     type="checkbox"
-                    checked={form.inStock}
+                    checked={
+                      form.inStock
+                    }
                     onChange={(e) =>
                       setForm((f) => ({
                         ...f,
                         inStock:
-                          e.target.checked,
+                          e.target
+                            .checked,
                       }))
                     }
                   />
@@ -821,14 +1253,15 @@ export function AdminPortal({
 
               <button
                 disabled={
-                  saving || processingImage
+                  saving ||
+                  processingImage
                 }
-                className="w-full h-12 rounded-xl bg-neutral-950 text-white font-black flex items-center justify-center gap-2"
+                className="w-full h-12 rounded-xl bg-neutral-950 text-white font-black flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {saving ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
                 ) : (
-                  <Plus className="w-5 h-5" />
+                  <Save className="w-5 h-5" />
                 )}
 
                 {saving
@@ -843,15 +1276,18 @@ export function AdminPortal({
           ) : (
 
             <>
-              {/* Tabs */}
+              {/* TABS */}
               <div className="flex gap-2 mb-5 p-1 rounded-2xl bg-neutral-100">
 
                 <button
                   onClick={() =>
-                    setSection("products")
+                    setSection(
+                      "products"
+                    )
                   }
                   className={`flex-1 h-10 rounded-xl text-xs font-black ${
-                    section === "products"
+                    section ===
+                    "products"
                       ? "bg-white shadow-sm text-neutral-900"
                       : "text-neutral-500"
                   }`}
@@ -861,10 +1297,13 @@ export function AdminPortal({
 
                 <button
                   onClick={() =>
-                    setSection("social")
+                    setSection(
+                      "social"
+                    )
                   }
                   className={`flex-1 h-10 rounded-xl text-xs font-black ${
-                    section === "social"
+                    section ===
+                    "social"
                       ? "bg-white shadow-sm text-neutral-900"
                       : "text-neutral-500"
                   }`}
@@ -875,9 +1314,10 @@ export function AdminPortal({
 
               </div>
 
-              {section === "social" ? (
+              {section ===
+              "social" ? (
 
-                /* Social Links */
+                /* SOCIAL LINKS */
                 <div className="space-y-4">
 
                   <div>
@@ -886,49 +1326,74 @@ export function AdminPortal({
                     </h3>
 
                     <p className="text-xs text-neutral-500 mt-1">
-                      Facebook, Instagram, YouTube और Telegram
-                      की अपनी profile/page/channel link डालें।
+                      अपनी Facebook, Instagram,
+                      YouTube और Telegram profile/page/channel
+                      links डालें।
                     </p>
                   </div>
 
                   {(
                     [
-                      ["facebook", "Facebook"],
-                      ["instagram", "Instagram"],
-                      ["youtube", "YouTube"],
-                      ["telegram", "Telegram"],
+                      [
+                        "facebook",
+                        "Facebook",
+                      ],
+                      [
+                        "instagram",
+                        "Instagram",
+                      ],
+                      [
+                        "youtube",
+                        "YouTube",
+                      ],
+                      [
+                        "telegram",
+                        "Telegram",
+                      ],
                     ] as const
-                  ).map(([key, label]) => (
+                  ).map(
+                    ([key, label]) => (
+                      <label
+                        key={key}
+                        className="block"
+                      >
 
-                    <label
-                      key={key}
-                      className="block"
-                    >
-                      <span className="text-xs font-black">
-                        {label}
-                      </span>
+                        <span className="text-xs font-black">
+                          {label}
+                        </span>
 
-                      <div className="relative mt-1">
+                        <div className="relative mt-1">
 
-                        <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                          <Link2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
 
-                        <input
-                          value={socialForm[key]}
-                          onChange={(e) =>
-                            setSocialForm((f) => ({
-                              ...f,
-                              [key]:
-                                e.target.value,
-                            }))
-                          }
-                          placeholder={`Your ${label} link`}
-                          className="w-full h-11 pl-10 pr-3 rounded-xl border border-neutral-200"
-                        />
+                          <input
+                            value={
+                              socialForm[
+                                key
+                              ]
+                            }
+                            onChange={(
+                              e
+                            ) =>
+                              setSocialForm(
+                                (f) => ({
+                                  ...f,
+                                  [key]:
+                                    e
+                                      .target
+                                      .value,
+                                })
+                              }
+                            }
+                            placeholder={`Your ${label} link`}
+                            className="w-full h-11 pl-10 pr-3 rounded-xl border border-neutral-200"
+                          />
 
-                      </div>
-                    </label>
+                        </div>
 
-                  ))}
+                      </label>
+                    )
+                  )}
 
                   {error && (
                     <div className="p-3 rounded-xl bg-red-50 text-xs font-semibold text-red-600">
@@ -937,11 +1402,19 @@ export function AdminPortal({
                   )}
 
                   <button
-                    onClick={saveSocial}
-                    disabled={savingSocial}
-                    className="w-full h-12 rounded-xl bg-neutral-950 text-white font-black flex items-center justify-center gap-2"
+                    onClick={
+                      saveSocial
+                    }
+                    disabled={
+                      savingSocial
+                    }
+                    className="w-full h-12 rounded-xl bg-neutral-950 text-white font-black flex items-center justify-center gap-2 disabled:opacity-60"
                   >
-                    <Save className="w-4 h-4" />
+                    {savingSocial ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Save className="w-4 h-4" />
+                    )}
 
                     {savingSocial
                       ? "Saving..."
@@ -952,33 +1425,42 @@ export function AdminPortal({
 
               ) : (
 
-                /* Products */
+                /* PRODUCTS */
                 <div>
 
                   <div className="flex items-center justify-between gap-3 mb-4">
 
                     <div>
                       <p className="text-xs text-neutral-500">
-                        Signed in as {user?.email}
+                        Signed in as{" "}
+                        {user?.email}
                       </p>
 
                       <h3 className="text-lg font-black">
-                        Products ({products.length})
+                        Products (
+                        {
+                          products.length
+                        }
+                        )
                       </h3>
                     </div>
 
                     <div className="flex gap-2">
 
                       <button
-                        onClick={openAdd}
-                        className="h-10 px-4 rounded-xl bg-rose-600 text-white text-xs font-black flex items-center gap-2"
+                        onClick={
+                          openAdd
+                        }
+                        className="h-10 px-4 rounded-xl bg-[#ff1686] text-white text-xs font-black flex items-center gap-2"
                       >
                         <Plus className="w-4 h-4" />
                         Add Product
                       </button>
 
                       <button
-                        onClick={logout}
+                        onClick={
+                          logout
+                        }
                         className="h-10 w-10 rounded-xl border border-neutral-200 flex items-center justify-center"
                       >
                         <LogOut className="w-4 h-4" />
@@ -996,104 +1478,128 @@ export function AdminPortal({
 
                   <div className="space-y-2">
 
-                    {products.length === 0 ? (
+                    {products.length ===
+                    0 ? (
 
                       <div className="py-12 text-center text-sm text-neutral-500">
-                        No products yet. Tap Add Product.
+                        No products yet.
+                        Tap Add Product.
                       </div>
 
                     ) : (
 
-                      products.map((p) => (
+                      products.map(
+                        (p) => (
+                          <div
+                            key={p.id}
+                            className="flex items-center gap-3 p-2.5 rounded-2xl border border-neutral-200"
+                          >
 
-                        <div
-                          key={p.id}
-                          className="flex items-center gap-3 p-2.5 rounded-2xl border border-neutral-200"
-                        >
-
-                          <img
-                            src={
-                              p.imageUrl ||
-                              p.image ||
-                              p.images?.[0]
-                            }
-                            alt=""
-                            className="w-16 h-16 rounded-xl object-cover bg-neutral-100"
-                          />
-
-                          <div className="min-w-0 flex-1">
-
-                            <p className="font-bold text-sm line-clamp-2">
-                              {p.name}
-                            </p>
-
-                            <p className="text-xs text-neutral-500">
-                              ₹{p.price}
-                            </p>
-
-                          </div>
-
-                          <div className="flex gap-1">
-
-                            <button
-                              onClick={() =>
-                                openEdit(p)
+                            <img
+                              src={
+                                p.imageUrl ||
+                                p.image ||
+                                p.images?.[0]
                               }
-                              className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center"
-                            >
-                              <Pencil className="w-4 h-4" />
-                            </button>
+                              alt=""
+                              className="w-16 h-16 rounded-xl object-cover bg-neutral-100"
+                            />
 
-                            <button
-                              disabled={
-                                deleting === p.id
-                              }
-                              onClick={() =>
-                                remove(p.id)
-                              }
-                              className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center"
-                            >
-                              {deleting ===
-                              p.id ? (
-                                <Loader2 className="w-4 h-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="w-4 h-4" />
-                              )}
-                            </button>
+                            <div className="min-w-0 flex-1">
 
-                            {p.affiliateLink && (
-                              <a
-                                href={
-                                  p.affiliateLink
+                              <p className="font-bold text-sm line-clamp-2">
+                                {p.name}
+                              </p>
+
+                              <p className="text-xs text-neutral-500">
+                                ₹
+                                {
+                                  p.price
                                 }
-                                target="_blank"
-                                rel="noreferrer"
+                              </p>
+
+                              {(
+                                p.images
+                                  ?.length ||
+                                0
+                              ) >
+                                1 && (
+                                <p className="text-[10px] text-[#ff1686] font-bold mt-1">
+                                  {
+                                    p
+                                      .images
+                                      ?.length
+                                  }{" "}
+                                  photos
+                                </p>
+                              )}
+
+                            </div>
+
+                            <div className="flex gap-1">
+
+                              <button
+                                onClick={() =>
+                                  openEdit(
+                                    p
+                                  )
+                                }
                                 className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center"
                               >
-                                <ExternalLink className="w-4 h-4" />
-                              </a>
-                            )}
+                                <Pencil className="w-4 h-4" />
+                              </button>
+
+                              <button
+                                disabled={
+                                  deleting ===
+                                  p.id
+                                }
+                                onClick={() =>
+                                  remove(
+                                    p.id
+                                  )
+                                }
+                                className="w-9 h-9 rounded-lg bg-red-50 text-red-600 flex items-center justify-center disabled:opacity-50"
+                              >
+                                {deleting ===
+                                p.id ? (
+                                  <Loader2 className="w-4 h-4 animate-spin" />
+                                ) : (
+                                  <Trash2 className="w-4 h-4" />
+                                )}
+                              </button>
+
+                              {p.affiliateLink && (
+                                <a
+                                  href={
+                                    p.affiliateLink
+                                  }
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="w-9 h-9 rounded-lg bg-neutral-100 flex items-center justify-center"
+                                >
+                                  <ExternalLink className="w-4 h-4" />
+                                </a>
+                              )}
+
+                            </div>
 
                           </div>
-
-                        </div>
-
-                      ))
+                        )
+                      )
 
                     )}
 
                   </div>
 
                 </div>
-
               )}
 
             </>
-
           )}
 
         </div>
       </div>
     </div>
   );
-        }
+            }
