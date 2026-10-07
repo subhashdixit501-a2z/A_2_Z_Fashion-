@@ -1,5 +1,5 @@
 import { addDoc, collection, onSnapshot, orderBy, query, serverTimestamp, updateDoc, doc } from 'firebase/firestore';
-import { defaultDb } from '../firebase';
+import { defaultDb } from './firebase';
 
 export type OrderStatus = 'Placed' | 'Confirmed' | 'Packed' | 'Shipped' | 'Delivered' | 'Cancelled';
 

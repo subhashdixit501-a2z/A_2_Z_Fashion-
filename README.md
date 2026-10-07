@@ -18,3 +18,7 @@ View your app in AI Studio: https://ai.studio/apps/c52184ca-e92a-4193-86cb-5678f
 2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
 3. Run the app:
    `npm run dev`
+
+
+## A_2_Z_Fashion FINAL branding
+Customer-facing marketplace names are intentionally hidden from the home UI. Social buttons are ready for Facebook, Instagram, YouTube and Telegram links. Replace the four URLs in `components/Navbar.tsx` and `App.tsx` with your own profile/channel links.

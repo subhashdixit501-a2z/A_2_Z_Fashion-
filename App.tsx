@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { SOCIAL_LINKS } from './socialLinks';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { testConnection } from './firebase';
 import { subscribeToProducts } from './services/productService';
@@ -216,10 +217,7 @@ function FashionStoreApp() {
         </section>
 
         {/* Active Filters Summary if filtered */}
-        {(filters.category !== 'All' ||
-          filters.marketplace !== 'All' ||
-          filters.priceRange !== 'all' ||
-          filters.searchQuery) && (
+        {(filters.category !== 'All' || filters.priceRange !== 'all' || filters.searchQuery) && (
           <div className="flex flex-wrap items-center gap-2 text-xs">
             <span className="text-neutral-500 font-medium">Active filters:</span>
             {filters.category !== 'All' && (
@@ -227,17 +225,6 @@ function FashionStoreApp() {
                 Category: {filters.category}
                 <button
                   onClick={() => setFilters((prev) => ({ ...prev, category: 'All' }))}
-                  className="hover:text-rose-300 ml-1"
-                >
-                  ×
-                </button>
-              </span>
-            )}
-            {filters.marketplace !== 'All' && (
-              <span className="px-2.5 py-1 rounded-full bg-neutral-900 text-white font-semibold flex items-center gap-1">
-                Store: {filters.marketplace}
-                <button
-                  onClick={() => setFilters((prev) => ({ ...prev, marketplace: 'All' }))}
                   className="hover:text-rose-300 ml-1"
                 >
                   ×
@@ -276,8 +263,17 @@ function FashionStoreApp() {
           </div>
         )}
 
-        {/* Products Section */}
-        <section>
+        <section className="rounded-[28px] bg-white border border-neutral-200/70 shadow-sm p-5 sm:p-7 flex flex-col sm:flex-row items-center justify-between gap-5 overflow-hidden relative">
+          <div className="flex items-center gap-4">
+            <img src="/a2z-logo.png" alt="A_2_Z_Fashion" className="w-20 h-20 rounded-full object-cover border border-[#ff1686]/30"/>
+            <div><div className="text-2xl sm:text-3xl font-black">A_2_Z_<span className="text-[#ff1686] italic">Fashion</span></div><div className="text-sm text-neutral-500 mt-1">Trendy Looks <span className="mx-1">|</span> Best Prices <span className="mx-1">|</span> All in One Place</div></div>
+          </div>
+          <div className="text-xl sm:text-2xl font-black text-right">Fashion for<br/><span className="text-[#ff1686]">Every You ♥</span></div>
+        </section>
+
+        <section id="deals">
+          <div className="flex items-center justify-between mb-4"><h2 className="text-2xl sm:text-3xl font-black">Top Deals Under <span className="text-[#ff1686]">₹499</span></h2><button onClick={()=>setFilters(prev=>({...prev,priceRange:'under-499'}))} className="font-bold text-sm">View All <span>›</span></button></div>
+          <div>
           {isLoading ? (
             <div className="py-20 text-center flex flex-col items-center justify-center">
               <RefreshCw className="w-8 h-8 text-rose-600 animate-spin mb-3" />
@@ -340,6 +336,14 @@ function FashionStoreApp() {
               ))}
             </div>
           )}
+          </div>
+        </section>
+
+        {/* Social links */}
+        <section id="social" className="rounded-3xl bg-[#0b0b0d] text-white p-6 sm:p-8">
+          <div className="text-center"><div className="text-xs uppercase tracking-[.28em] text-[#ff1686] font-bold">Stay Connected</div><h2 className="text-2xl sm:text-3xl font-black mt-2">Join the A_2_Z_Fashion Family</h2><div className="flex flex-wrap justify-center gap-3 mt-5">{[
+            ['Facebook',SOCIAL_LINKS.facebook],['Instagram',SOCIAL_LINKS.instagram],['YouTube',SOCIAL_LINKS.youtube],['Telegram',SOCIAL_LINKS.telegram]
+          ].map(([label,href])=><a key={label} href={href} target="_blank" rel="noopener noreferrer" className="px-4 py-2.5 rounded-full border border-white/15 bg-white/5 hover:bg-[#ff1686] text-sm font-bold transition">{label}</a>)}</div></div>
         </section>
 
         {/* Affiliate Disclosure Box */}
@@ -360,7 +364,7 @@ function FashionStoreApp() {
                 A_2_Z_Fashion
               </div>
               <div className="text-[11px] text-neutral-500">
-                Your premier destination for curated fashion deals and easy COD ordering.
+                Your premier destination for curated fashion, fresh deals and easy COD ordering.
               </div>
             </div>
           </div>
@@ -394,7 +398,7 @@ function FashionStoreApp() {
           <span>
             © {new Date().getFullYear()} A_2_Z_Fashion. All rights reserved. Affiliate links may be used. Product prices and availability can change on partner sites.
           </span>
-          <span>Fast, lightweight fashion search powered by Firebase Firestore.</span>
+          <span>Fast, beautiful and mobile-first fashion shopping by A_2_Z_Fashion.</span>
         </div>
       </footer>
 

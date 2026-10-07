@@ -22,3 +22,5 @@ export const db = getFirestore(app);
 export const testConnection = () => {
   console.log("Firebase connected:", app.name);
 };
+
+export const defaultDb = getFirestore(app);

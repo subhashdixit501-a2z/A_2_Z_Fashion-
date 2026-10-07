@@ -39,9 +39,15 @@ export interface Product {
   category: ProductCategory;
   marketplace: Marketplace;
   image: string;
+  /** Firestore/admin-compatible image URL or compressed data URL. */
+  imageUrl?: string;
   images?: string[];
   description?: string;
   affiliateLink?: string;
+  originalPrice?: number;
+  reviewsCount?: number;
+  inStock?: boolean;
+  updatedAt?: string;
   rating?: number;
   stock?: number;
   sizes?: string[];
