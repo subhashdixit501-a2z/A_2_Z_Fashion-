@@ -3,7 +3,6 @@ import { Filter, SlidersHorizontal } from "lucide-react";
 import {
   FilterState,
   ProductCategory,
-  Marketplace,
   PriceRange,
   SortBy,
 } from "../types";
@@ -24,13 +23,6 @@ const categories: ProductCategory[] = [
   "Accessories",
 ];
 
-const marketplaces: Marketplace[] = [
-  "All",
-  "Meesho",
-  "Flipkart",
-  "Myntra",
-];
-
 export function CategoryFilterBar({
   filters,
   onFilterChange,
@@ -42,9 +34,10 @@ export function CategoryFilterBar({
 
   return (
     <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+          <div className="w-9 h-9 rounded-xl bg-pink-50 text-[#ff1686] flex items-center justify-center">
             <Filter className="w-4 h-4" />
           </div>
 
@@ -61,15 +54,16 @@ export function CategoryFilterBar({
         <SlidersHorizontal className="w-4 h-4 text-neutral-400" />
       </div>
 
-      <div className="flex gap-2 overflow-x-auto pb-1">
+      {/* Categories */}
+      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
         {categories.map((category) => (
           <button
             key={category}
             onClick={() => update({ category })}
-            className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold border transition ${
+            className={`shrink-0 px-4 py-2.5 rounded-full text-xs font-bold border transition ${
               filters.category === category
-                ? "bg-neutral-900 text-white border-neutral-900"
-                : "bg-white text-neutral-700 border-neutral-200 hover:border-rose-300"
+                ? "bg-[#ff1686] text-white border-[#ff1686] shadow-md"
+                : "bg-white text-neutral-700 border-neutral-200 hover:border-[#ff1686] hover:text-[#ff1686]"
             }`}
           >
             {category}
@@ -77,29 +71,18 @@ export function CategoryFilterBar({
         ))}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-        <select
-          value={filters.marketplace}
-          onChange={(e) =>
-            update({ marketplace: e.target.value as Marketplace })
-          }
-          className="h-10 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none"
-        >
-          {marketplaces.map((marketplace) => (
-            <option key={marketplace} value={marketplace}>
-              {marketplace === "All"
-                ? "All Stores"
-                : marketplace}
-            </option>
-          ))}
-        </select>
-
+      {/* Filters */}
+      <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
+        
+        {/* Price */}
         <select
           value={filters.priceRange}
           onChange={(e) =>
-            update({ priceRange: e.target.value as PriceRange })
+            update({
+              priceRange: e.target.value as PriceRange,
+            })
           }
-          className="h-10 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none"
+          className="h-11 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none focus:border-[#ff1686]"
         >
           <option value="all">All Prices</option>
           <option value="under-499">Under ₹499</option>
@@ -108,12 +91,15 @@ export function CategoryFilterBar({
           <option value="above-2000">₹2,000+</option>
         </select>
 
+        {/* Sort */}
         <select
           value={filters.sortBy}
           onChange={(e) =>
-            update({ sortBy: e.target.value as SortBy })
+            update({
+              sortBy: e.target.value as SortBy,
+            })
           }
-          className="h-10 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none col-span-2 sm:col-span-1"
+          className="h-11 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none focus:border-[#ff1686]"
         >
           <option value="featured">Featured</option>
           <option value="newest">Newest</option>
