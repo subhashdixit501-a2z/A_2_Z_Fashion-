@@ -1,0 +1,6 @@
+{
+  "name": "A_2_Z_Fashion",
+  "description": "Mobile-first curated fashion discovery and affiliate shopping platform featuring top collections from Meesho, Flipkart, and Myntra.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

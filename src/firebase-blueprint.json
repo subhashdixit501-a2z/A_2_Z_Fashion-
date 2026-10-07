@@ -1,0 +1,98 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Fashion merchandise item with marketplace affiliate link and metadata",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Title or display name of the fashion item"
+        },
+        "price": {
+          "type": "number",
+          "description": "Current selling price in INR"
+        },
+        "originalPrice": {
+          "type": "number",
+          "description": "Original retail price / MRP for discount display"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["Women", "Men", "Kids", "Shoes", "Beauty", "Accessories"],
+          "description": "Product category"
+        },
+        "marketplace": {
+          "type": "string",
+          "enum": ["Meesho", "Flipkart", "Myntra"],
+          "description": "Partner e-commerce marketplace"
+        },
+        "imageUrl": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Public URL for product image"
+        },
+        "affiliateLink": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Destination affiliate or store link"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Product details and fashion highlights"
+        },
+        "rating": {
+          "type": "number",
+          "description": "Average customer rating (e.g. 4.3)"
+        },
+        "reviewsCount": {
+          "type": "number",
+          "description": "Number of customer reviews"
+        },
+        "isFeatured": {
+          "type": "boolean",
+          "description": "Whether to highlight in trending / featured hero banner"
+        },
+        "inStock": {
+          "type": "boolean",
+          "description": "Availability state"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp"
+        }
+      },
+      "required": ["name", "price", "category", "marketplace", "imageUrl", "affiliateLink"]
+    },
+    "AdminProfile": {
+      "title": "AdminProfile",
+      "description": "Authorized administrator record",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "email": { "type": "string", "maxLength": 256 },
+        "role": { "type": "string", "enum": ["admin"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Public fashion products catalog"
+    },
+    "/admins/{uid}": {
+      "schema": "AdminProfile",
+      "description": "System admin profile mapping"
+    }
+  }
+}
