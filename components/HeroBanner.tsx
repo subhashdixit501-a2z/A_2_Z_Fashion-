@@ -23,8 +23,7 @@ export function HeroBanner({
         <div
           className="absolute right-0 top-0 h-full w-[48%] bg-cover bg-center"
           style={{
-            backgroundImage:
-              "url('/a2z-fashion-banner.png')",
+            backgroundImage: "url('/a2z-hero-banner.png')",
           }}
         />
 
