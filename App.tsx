@@ -320,61 +320,7 @@ function FashionStoreApp() {
 
       <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-7 space-y-6 sm:space-y-8 pb-24 md:pb-12">
 
-        {/* PREMIUM BRAND INTRO */}
-        <section className="relative overflow-hidden rounded-[30px] bg-[#080808] text-white shadow-2xl border border-neutral-900">
-          <div className="absolute -right-20 -top-20 w-72 h-72 rounded-full bg-[#ff1686]/25 blur-3xl" />
-          <div className="absolute -left-20 -bottom-20 w-72 h-72 rounded-full bg-[#d4af37]/15 blur-3xl" />
-
-          <div className="relative z-10 grid md:grid-cols-2 gap-5 items-center p-6 sm:p-10">
-
-            <div>
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-xs font-bold text-[#ff9dca]">
-                <Sparkles className="w-4 h-4" />
-                A_2_Z_Fashion
-              </div>
-
-              <h1 className="mt-5 text-3xl sm:text-5xl font-black leading-tight">
-                Style You Love.
-                <span className="block text-[#ff1686]">
-                  Prices You'll Love.
-                </span>
-              </h1>
-
-              <p className="mt-4 text-sm sm:text-base text-white/70 max-w-xl">
-                Discover stylish fashion, trending looks
-                and amazing deals — all in one place.
-              </p>
-
-              <button
-                onClick={() =>
-                  setFilters((prev) => ({
-                    ...prev,
-                    priceRange: 'under-499',
-                  }))
-                }
-                className="mt-6 inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[#ff1686] text-white font-black text-sm shadow-lg hover:scale-105 transition"
-              >
-                Explore Top Deals
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="hidden md:flex justify-center">
-              <div className="w-64 h-64 rounded-full border-2 border-[#d4af37]/60 bg-white/5 backdrop-blur flex flex-col items-center justify-center shadow-[0_0_60px_rgba(255,22,134,0.18)]">
-                <img
-                  src="/a2z-logo.png"
-                  alt="A_2_Z_Fashion"
-                  className="w-32 h-32 rounded-full object-cover border-2 border-[#d4af37]"
-                />
-
-                <div className="mt-3 text-[10px] tracking-[0.3em] text-[#d4af37] font-bold">
-                  STYLE • QUALITY • YOU
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </section>
+        
 
         {/* HERO */}
         <HeroBanner
