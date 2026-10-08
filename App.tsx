@@ -343,53 +343,52 @@ function FashionStoreApp() {
         </section>
 
         {/* CATEGORY QUICK CARDS */}
-        <section>
-          <div className="flex items-end justify-between mb-4">
-            <div>
-              <div className="text-xs font-bold tracking-[0.2em] text-[#ff1686] uppercase">
-                Explore
-              </div>
+<section>
+  <div className="flex items-end justify-between mb-4">
+    <div>
+      <div className="text-xs font-black tracking-[0.2em] text-[#ff1686] uppercase">
+        Explore
+      </div>
 
-              <h2 className="text-2xl sm:text-3xl font-black mt-1">
-                Shop by Category
-              </h2>
-            </div>
-          </div>
+      <h2 className="text-2xl sm:text-3xl font-black mt-1">
+        Shop by Category
+      </h2>
+    </div>
+  </div>
 
-          <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-4">
-            {[
-              'Women',
-              'Men',
-              'Kids',
-              'Shoes',
-              'Beauty',
-              'Accessories',
-            ].map((category) => (
-              <button
-                key={category}
-                onClick={() =>
-                  goToCategory(
-                    category as ProductCategory
-                  )
-                }
-                className="group bg-white rounded-2xl border border-neutral-200 p-4 sm:p-5 text-center shadow-sm hover:shadow-lg hover:-translate-y-1 transition"
-              >
-                <div className="mx-auto w-11 h-11 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-[#fff0f7] to-[#ffe0ef] flex items-center justify-center text-[#ff1686] font-black group-hover:scale-110 transition">
-                  {category.charAt(0)}
-                </div>
+  <div className="grid grid-cols-3 sm:grid-cols-6 gap-3 sm:gap-4">
+    {[
+      { name: 'Women', icon: '♀' },
+      { name: 'Men', icon: '♂' },
+      { name: 'Kids', icon: '✦' },
+      { name: 'Shoes', icon: '👟' },
+      { name: 'Beauty', icon: '✿' },
+      { name: 'Accessories', icon: '◇' },
+    ].map((category) => (
+      <button
+        key={category.name}
+        onClick={() =>
+          goToCategory(category.name as ProductCategory)
+        }
+        className="group relative overflow-hidden rounded-2xl bg-white border border-neutral-200 p-3 sm:p-5 text-center shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-[#fff0f7] via-white to-[#fff7fb] opacity-0 group-hover:opacity-100 transition-opacity" />
 
-                <div className="mt-3 text-xs sm:text-sm font-bold">
-                  {category}
-                </div>
+        <div className="relative z-10 mx-auto w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[#080808] border-2 border-[#d4af37] flex items-center justify-center text-xl sm:text-2xl text-[#ff1686] group-hover:scale-110 transition-transform">
+          {category.icon}
+        </div>
 
-                <div className="mt-1 text-[10px] text-neutral-400">
-                  {productsByCategory[category] || 0} items
-                </div>
-              </button>
-            ))}
-          </div>
-        </section>
+        <div className="relative z-10 mt-3 text-xs sm:text-sm font-black text-neutral-900">
+          {category.name}
+        </div>
 
+        <div className="relative z-10 mt-1 text-[10px] text-neutral-400">
+          {productsByCategory[category.name] || 0} items
+        </div>
+      </button>
+    ))}
+  </div>
+</section>
         {/* ACTIVE FILTERS */}
         {(filters.category !== 'All' ||
           filters.priceRange !== 'all' ||
