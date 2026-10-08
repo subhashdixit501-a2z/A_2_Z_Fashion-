@@ -472,44 +472,7 @@ function FashionStoreApp() {
           </div>
         )}
 
-        {/* BRAND PROMO */}
-        <section className="relative overflow-hidden rounded-[30px] bg-gradient-to-r from-[#090909] via-[#171717] to-[#2a0b1a] text-white p-6 sm:p-8 shadow-xl">
-
-          <div className="absolute right-0 top-0 w-72 h-72 bg-[#ff1686]/20 blur-3xl rounded-full" />
-
-          <div className="relative z-10 flex flex-col sm:flex-row items-center justify-between gap-6">
-
-            <div className="flex items-center gap-4">
-              <img
-                src="/a2z-logo.png"
-                alt="A_2_Z_Fashion"
-                className="w-20 h-20 sm:w-24 sm:h-24 rounded-full object-cover border-2 border-[#d4af37]"
-              />
-
-              <div>
-                <div className="text-2xl sm:text-3xl font-black">
-                  A_2_Z_
-                  <span className="text-[#ff1686] italic">
-                    Fashion
-                  </span>
-                </div>
-
-                <div className="text-xs sm:text-sm text-white/60 mt-2">
-                  Trendy Looks • Best Prices • All in One Place
-                </div>
-              </div>
-            </div>
-
-            <div className="text-xl sm:text-2xl font-black text-center sm:text-right">
-              Fashion for
-              <br />
-              <span className="text-[#ff1686]">
-                Every You ♥
-              </span>
-            </div>
-
-          </div>
-        </section>
+        
 
         {/* DEALS */}
         <section id="deals">
