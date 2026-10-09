@@ -14,7 +14,7 @@ return (
 <section className="relative overflow-hidden rounded-[24px] border border-pink-100 bg-[#fce8ec] shadow-lg">
 <div className="relative">
 <img
-src="/a2z-hero-banner.png"
+src="/file_000000001e988211937b3a9f5a5a29fc.png"
 alt="A_2_Z_Fashion — Style, Trends, You"
 className="block h-[230px] w-full object-cover sm:h-[340px] lg:h-[420px]"
 />
