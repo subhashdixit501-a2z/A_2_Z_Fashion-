@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Filter, SlidersHorizontal } from "lucide-react";
 import {
@@ -13,14 +14,13 @@ interface CategoryFilterBarProps {
   productCount: number;
 }
 
-const categories: ProductCategory[] = [
-  "All",
-  "Women",
-  "Men",
-  "Kids",
-  "Shoes",
-  "Beauty",
-  "Accessories",
+const categories: { name: ProductCategory; image: string; label: string }[] = [
+  { name: "Women", image: "/category-women.png", label: "Shop Women" },
+  { name: "Men", image: "/category-men.png", label: "Shop Men" },
+  { name: "Kids", image: "/category-kids.png", label: "Shop Kids" },
+  { name: "Shoes", image: "/category-shoes.png", label: "Shop Shoes" },
+  { name: "Beauty", image: "/category-beauty.png", label: "Shop Beauty" },
+  { name: "Accessories", image: "/category-accessories.png", label: "Shop Accessories" },
 ];
 
 export function CategoryFilterBar({
@@ -33,56 +33,65 @@ export function CategoryFilterBar({
   };
 
   return (
-    <div className="space-y-4">
-      {/* Header */}
+    <section className="space-y-4">
       <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-xl bg-pink-50 text-[#ff1686] flex items-center justify-center">
-            <Filter className="w-4 h-4" />
-          </div>
-
-          <div>
-            <h2 className="text-sm font-black text-neutral-900">
-              Shop by Category
-            </h2>
-            <p className="text-[11px] text-neutral-500">
-              {productCount} products found
-            </p>
-          </div>
+        <div>
+          <h2 className="text-lg font-black text-neutral-900">
+            Shop by Category
+          </h2>
+          <p className="text-xs text-neutral-500">
+            Discover your style · {productCount} products
+          </p>
         </div>
-
-        <SlidersHorizontal className="w-4 h-4 text-neutral-400" />
+        <SlidersHorizontal className="h-5 w-5 text-[#b8860b]" />
       </div>
 
-      {/* Categories */}
-      <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {categories.map((category) => (
           <button
-            key={category}
-            onClick={() => update({ category })}
-            className={`shrink-0 px-4 py-2.5 rounded-full text-xs font-bold border transition ${
-              filters.category === category
-                ? "bg-[#ff1686] text-white border-[#ff1686] shadow-md"
-                : "bg-white text-neutral-700 border-neutral-200 hover:border-[#ff1686] hover:text-[#ff1686]"
+            key={category.name}
+            type="button"
+            onClick={() => update({ category: category.name })}
+            className={`group overflow-hidden rounded-2xl border bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+              filters.category === category.name
+                ? "border-[#c9a227] ring-2 ring-[#c9a227]/30"
+                : "border-pink-100"
             }`}
           >
-            {category}
+            <div className="relative h-28 overflow-hidden bg-pink-50 sm:h-32">
+              <img
+                src={category.image}
+                alt={category.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+              <span className="absolute bottom-2 left-2 text-sm font-black text-white">
+                {category.name}
+              </span>
+            </div>
+            <div className="flex items-center justify-between px-3 py-2">
+              <span className="text-xs font-semibold text-neutral-700">
+                {category.label}
+              </span>
+              <span className="text-[#b8860b]">›</span>
+            </div>
           </button>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
-        
-        {/* Price */}
+      <div className="flex items-center gap-2">
+        <Filter className="h-4 w-4 text-[#b8860b]" />
+        <span className="text-sm font-bold text-neutral-800">Filter Deals</span>
+      </div>
+
+      <div className="grid grid-cols-2 gap-2">
         <select
           value={filters.priceRange}
           onChange={(e) =>
-            update({
-              priceRange: e.target.value as PriceRange,
-            })
+            update({ priceRange: e.target.value as PriceRange })
           }
-          className="h-11 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none focus:border-[#ff1686]"
+          className="h-11 rounded-xl border border-pink-100 bg-white px-3 text-xs font-semibold outline-none focus:border-[#c9a227]"
         >
           <option value="all">All Prices</option>
           <option value="under-499">Under ₹499</option>
@@ -91,15 +100,12 @@ export function CategoryFilterBar({
           <option value="above-2000">₹2,000+</option>
         </select>
 
-        {/* Sort */}
         <select
           value={filters.sortBy}
           onChange={(e) =>
-            update({
-              sortBy: e.target.value as SortBy,
-            })
+            update({ sortBy: e.target.value as SortBy })
           }
-          className="h-11 px-3 rounded-xl border border-neutral-200 bg-white text-xs font-semibold outline-none focus:border-[#ff1686]"
+          className="h-11 rounded-xl border border-pink-100 bg-white px-3 text-xs font-semibold outline-none focus:border-[#c9a227]"
         >
           <option value="featured">Featured</option>
           <option value="newest">Newest</option>
@@ -108,6 +114,6 @@ export function CategoryFilterBar({
           <option value="rating">Top Rated</option>
         </select>
       </div>
-    </div>
+    </section>
   );
 }
