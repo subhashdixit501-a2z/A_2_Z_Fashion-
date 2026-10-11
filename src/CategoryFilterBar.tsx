@@ -1,108 +1,134 @@
-import React from 'react';
-import { ProductCategory, Marketplace, FilterState } from '../types';
-import { Sparkles, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
+
+import React from "react";
+import { ArrowRight, SlidersHorizontal } from "lucide-react";
+import {
+  FilterState,
+  ProductCategory,
+  PriceRange,
+  SortBy,
+} from "../types";
 
 interface CategoryFilterBarProps {
   filters: FilterState;
-  onFilterChange: (updater: (prev: FilterState) => FilterState) => void;
+  onFilterChange: (filters: FilterState) => void;
   productCount: number;
 }
 
-const CATEGORIES: { label: string; value: ProductCategory | 'All'; icon: string }[] = [
-  { label: 'All Fashion', value: 'All', icon: '✨' },
-  { label: 'Women', value: 'Women', icon: '👗' },
-  { label: 'Men', value: 'Men', icon: '👔' },
-  { label: 'Kids', value: 'Kids', icon: '🧸' },
-  { label: 'Shoes', value: 'Shoes', icon: '👟' },
-  { label: 'Beauty', value: 'Beauty', icon: '💄' },
-  { label: 'Accessories', value: 'Accessories', icon: '👜' },
+const categories: {
+  name: ProductCategory;
+  image: string;
+  sub: string;
+}[] = [
+  { name: "Women", image: "/category-women.png", sub: "Shop Women" },
+  { name: "Men", image: "/category-men.png", sub: "Shop Men" },
+  { name: "Kids", image: "/category-kids.png", sub: "Shop Kids" },
+  { name: "Shoes", image: "/category-shoes.png", sub: "Shop Shoes" },
+  { name: "Beauty", image: "/category-beauty.png", sub: "Shop Beauty" },
+  { name: "Accessories", image: "/category-accessories.png", sub: "Shop Accessories" },
 ];
 
-const MARKETPLACES: { label: string; value: Marketplace | 'All'; color: string }[] = [
-  { label: 'All Stores', value: 'All', color: 'bg-neutral-800 text-white' },
-  { label: 'Meesho', value: 'Meesho', color: 'bg-pink-600 text-white' },
-  { label: 'Flipkart', value: 'Flipkart', color: 'bg-blue-600 text-white' },
-  { label: 'Myntra', value: 'Myntra', color: 'bg-rose-500 text-white' },
-];
-
-export const CategoryFilterBar: React.FC<CategoryFilterBarProps> = ({
+export function CategoryFilterBar({
   filters,
   onFilterChange,
   productCount,
-}) => {
+}: CategoryFilterBarProps) {
+  const update = (changes: Partial<FilterState>) => {
+    onFilterChange({ ...filters, ...changes });
+  };
+
   return (
-    <div className="space-y-3">
-      {/* Category Pills (Horizontal Scroll on Mobile) */}
-      <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 scroll-smooth">
-        {CATEGORIES.map((cat) => {
-          const isActive = filters.category === cat.value;
-          return (
-            <button
-              key={cat.value}
-              type="button"
-              onClick={() => onFilterChange((prev) => ({ ...prev, category: cat.value }))}
-              className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-full text-xs sm:text-sm font-semibold transition-all active:scale-95 min-h-[38px] ${
-                isActive
-                  ? 'bg-neutral-950 text-white shadow-md shadow-neutral-950/20'
-                  : 'bg-white text-neutral-600 hover:text-neutral-900 border border-neutral-200/90 hover:bg-neutral-50'
-              }`}
-            >
-              <span>{cat.icon}</span>
-              <span>{cat.label}</span>
-            </button>
-          );
-        })}
+    <section className="space-y-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-2xl sm:text-3xl font-black text-neutral-900">
+            Categories
+          </h2>
+          <span className="hidden sm:block h-px w-10 bg-pink-500" />
+          <span className="text-lg sm:text-xl font-bold italic text-[#ff1686]">
+            Explore A_2_Z_Fashion
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => update({ category: "All" })}
+          className="shrink-0 text-sm font-bold text-neutral-900"
+        >
+          View All <ArrowRight className="inline h-4 w-4" />
+        </button>
       </div>
 
-      {/* Sub-bar: Marketplace selection & Sort */}
-      <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-neutral-100">
-        {/* Marketplace pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider hidden sm:inline mr-1">
-            Store:
-          </span>
-          {MARKETPLACES.map((mp) => {
-            const isSelected = filters.marketplace === mp.value;
-            return (
-              <button
-                key={mp.value}
-                onClick={() => onFilterChange((prev) => ({ ...prev, marketplace: mp.value }))}
-                className={`px-3 py-1 rounded-full text-xs font-semibold transition-all border ${
-                  isSelected
-                    ? `${mp.color} border-transparent shadow-xs`
-                    : 'bg-neutral-50 text-neutral-600 border-neutral-200 hover:bg-neutral-100'
-                }`}
-              >
-                {mp.label}
-              </button>
-            );
-          })}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {categories.map((category) => (
+          <button
+            type="button"
+            key={category.name}
+            onClick={() => update({ category: category.name })}
+            className={`overflow-hidden rounded-2xl border text-left bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${
+              filters.category === category.name
+                ? "border-[#ff1686] ring-2 ring-pink-200"
+                : "border-pink-100"
+            }`}
+          >
+            <div className="aspect-[0.95] overflow-hidden bg-pink-50">
+              <img
+                src={category.image}
+                alt={category.name}
+                loading="lazy"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="bg-gradient-to-b from-white to-pink-50 p-3">
+              <div className="text-sm font-black text-neutral-900">
+                {category.name}
+              </div>
+              <div className="mt-1 flex items-center justify-between gap-1 text-xs text-neutral-600">
+                <span>{category.sub}</span>
+                <ArrowRight className="h-4 w-4 shrink-0 text-[#d4af37]" />
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-pink-100 bg-white p-3">
+        <div className="text-xs text-neutral-500">
+          <strong className="text-neutral-900">{productCount}</strong> products
         </div>
 
-        {/* Sort & Count */}
-        <div className="flex items-center gap-2 ml-auto">
-          <span className="text-xs text-neutral-400 font-medium">
-            {productCount} {productCount === 1 ? 'item' : 'items'}
-          </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <select
+            aria-label="Filter by price"
+            value={filters.priceRange}
+            onChange={(event) =>
+              update({ priceRange: event.target.value as PriceRange })
+            }
+            className="h-10 rounded-xl border border-pink-100 bg-white px-3 text-xs font-semibold"
+          >
+            <option value="all">All Prices</option>
+            <option value="under-499">Under ₹499</option>
+            <option value="500-999">₹500 - ₹999</option>
+            <option value="1000-1999">₹1,000 - ₹1,999</option>
+            <option value="above-2000">₹2,000+</option>
+          </select>
 
-          <div className="relative inline-flex items-center">
-            <ArrowUpDown className="w-3.5 h-3.5 text-neutral-400 absolute left-2 pointer-events-none" />
-            <select
-              value={filters.sortBy}
-              onChange={(e) =>
-                onFilterChange((prev) => ({ ...prev, sortBy: e.target.value as any }))
-              }
-              className="text-xs font-medium text-neutral-700 bg-white border border-neutral-200 rounded-lg pl-7 pr-4 py-1.5 focus:border-rose-400 focus:outline-none cursor-pointer"
-            >
-              <option value="featured">Featured First</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
-              <option value="rating">Highest Rated</option>
-              <option value="newest">Newest First</option>
-            </select>
-          </div>
+          <select
+            aria-label="Sort products"
+            value={filters.sortBy}
+            onChange={(event) =>
+              update({ sortBy: event.target.value as SortBy })
+            }
+            className="h-10 rounded-xl border border-pink-100 bg-white px-3 text-xs font-semibold"
+          >
+            <option value="featured">Featured</option>
+            <option value="newest">Newest</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Top Rated</option>
+          </select>
+
+          <SlidersHorizontal className="h-5 w-5 text-[#d4af37]" />
         </div>
       </div>
-    </div>
+    </section>
   );
-};
+}
