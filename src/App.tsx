@@ -205,7 +205,11 @@ function FashionStoreApp() {
           onSelectMarketplace={(mp) => setFilters((prev) => ({ ...prev, marketplace: mp }))}
           onSelectPriceRange={(range) => setFilters((prev) => ({ ...prev, priceRange: range }))}
         />
-
+        <CategoryFilterBar
+          filters={filters}
+          onFilterChange={setFilters}
+          productCount={filteredProducts.length}
+        />
                 {/* A_2_Z_Fashion Promotional Strip */}
         <section className="overflow-hidden rounded-2xl border border-pink-100 bg-white shadow-sm">
           <img
