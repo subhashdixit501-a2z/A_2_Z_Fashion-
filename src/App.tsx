@@ -206,12 +206,13 @@ function FashionStoreApp() {
           onSelectPriceRange={(range) => setFilters((prev) => ({ ...prev, priceRange: range }))}
         />
 
-        {/* Category & Marketplace Filter Controls */}
-        <section className="bg-white rounded-3xl p-3.5 sm:p-5 shadow-xs border border-neutral-200/80">
-          <CategoryFilterBar
-            filters={filters}
-            onFilterChange={setFilters}
-            productCount={filteredProducts.length}
+                {/* A_2_Z_Fashion Promotional Strip */}
+        <section className="overflow-hidden rounded-2xl border border-pink-100 bg-white shadow-sm">
+          <img
+            src="/a2z-promo-strip.png"
+            alt="A_2_Z_Fashion — Fresh Fashion Deals"
+            className="block h-auto w-full object-contain"
+            loading="lazy"
           />
         </section>
 
